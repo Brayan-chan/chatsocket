@@ -7,7 +7,12 @@ const app = express();
 app.use(logger('dev'));
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello World</h1>')
+    // Ejemplo para servir una respuesta HTML
+    //res.send('<h1>Hello World</h1>')
+
+    // Ejemplo para servir un archivo HTML
+    // Se utiliza current working directory (cwd) para obtener la ruta absoluta del archivo
+    res.sendFile(process.cwd() + '/client/index.html')
 });
 
 app.listen(port, () => {
