@@ -27,7 +27,8 @@ const db = createClient({
 await db.execute(
     `CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT
+        content TEXT,
+        user TEXT
     )`
 )
 
@@ -45,13 +46,15 @@ io.on('connection', async (socket) => {
         //console.log('message: ' + msg);
 
         let result
+        let username = await socket.handshake.auth.username ?? 'Anonymous'
+
 
         try {
             result = await db.execute({
-                sql: 'INSERT INTO messages (content) VALUES (:msg)',
+                sql: 'INSERT INTO messages (content, user) VALUES (:msg, :username)',
 
                 // Evitar el SQL Injection
-                args: { msg }
+                args: { msg, username }
             })
         } catch (e) {
             console.error(e)
@@ -59,23 +62,21 @@ io.on('connection', async (socket) => {
         }
 
         // Se emite el mensaje a todos los clientes conectados con el id del mensaje
-        io.emit('chat message', msg, result.lastInsertRowid.toString());
+        io.emit('chat message', msg, result.lastInsertRowid.toString(), username);
 
         // Se emite el mensaje a todos los clientes conectados
         //io.emit('chat message', msg);
     });
 
-    console.log(socket.handshake.auth)
-
     if (!socket.recovered) {
         try {
             const results = await db.execute({
-                sql: 'SELECT id, content FROM messages WHERE id > ?',
+                sql: 'SELECT id, content, user FROM messages WHERE id > ?',
                 args: [socket.handshake.auth.serverOffset ?? 0]
             });
 
             results.rows.forEach(row => {
-                socket.emit('chat message', row.content, row.id.toString());
+                socket.emit('chat message', row.content, row.id.toString(), row.user);
             });
         } catch (e) {
             console.error(e)
