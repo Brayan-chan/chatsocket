@@ -9,7 +9,12 @@
         import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
         // Se crea una instancia de Socket.io
-        const socket = io();
+        const socket = io({
+            auth: {
+                // Permitir saber donde se ha quedado el cliente
+                serverOffset: 0
+            }
+        });
 
         const form = document.getElementById('form');
         const input = document.getElementById('input');
@@ -17,9 +22,12 @@
 
         // Se escucha el evento 'chat message' del servidor
         // Se agrega el mensaje a la lista de mensajes
-        socket.on('chat message', (msg) => {
+        socket.on('chat message', (msg, serverOffset) => {
             const item = `<li>${msg}</li>`;
             messages.insertAdjacentHTML('beforeend', item);
+
+            // Se actualiza el offset del servidor
+            socket.auth.serverOffset = serverOffset;
         });
 
         // Se escucha el evento 'submit' del formulario
