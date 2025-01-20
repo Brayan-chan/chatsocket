@@ -49,6 +49,8 @@ io.on('connection', (socket) => {
         try {
             result = await db.execute({
                 sql: 'INSERT INTO messages (content) VALUES (:msg)',
+
+                // Evitar el SQL Injection
                 args: { msg }
             })
         } catch (e) {
