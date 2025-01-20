@@ -48,11 +48,12 @@ io.on('connection', (socket) => {
 
         try {
             result = await db.execute({
-                sql: `INSERT INTO messages (content) VALUES (:content)`,
-                params: { content: msg }
+                sql: `INSERT INTO messages (content) VALUES (:msg)`,
+                params: { msg }
             })
         } catch (e) {
-            
+            console.error(e)
+            return
         }
 
         // Se emite el mensaje a todos los clientes conectados
