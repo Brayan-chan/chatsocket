@@ -50,6 +50,7 @@
 
                 // Se actualiza el offset del servidor
                 socket.auth.serverOffset = serverOffset;
+                messages.scrollTop = messages.scrollHeight;
             });
 
             // Se escucha el evento 'submit' del formulario
@@ -88,6 +89,10 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
+            overflow-y: scroll;
+            height: 100%;
+            scroll-behavior: smooth;
+            padding-bottom: 48px;
         }
 
         #messages > li {
