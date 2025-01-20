@@ -20,7 +20,7 @@
             e.preventDefault();
             // Se emite el evento 'message' con el valor del input 
             if (input.value) {
-                socket.emit('message', input.value);
+                socket.emit('chat message', input.value);
                 // Se limpia el input después de enviar el mensaje
                 input.value = '';
             }

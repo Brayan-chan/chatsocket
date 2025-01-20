@@ -22,6 +22,13 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user has disconnected');
     });
+
+    // Se define el evento 'chat message' que se ejecuta cuando un cliente emite un mensaje
+    socket.on('chat message', (msg) => {
+        console.log('message: ' + msg);
+    });
+
+    // Utilizamos broadcast para enviar el mensaje a todos los clientes conectados
 });
 
 app.get('/', (req, res) => {
