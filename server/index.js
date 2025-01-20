@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
 
         // Se emite el mensaje a todos los clientes conectados
         io.emit('chat message', msg);
+        console.log('message: ' + msg);
     });
 
     // Utilizamos broadcast para enviar el mensaje a todos los clientes conectados
