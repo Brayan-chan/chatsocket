@@ -28,7 +28,8 @@ await db.execute(
     `CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         content TEXT,
-        user TEXT
+        user TEXT,
+        color TEXT
     )`
 )
 
@@ -42,58 +43,46 @@ io.on('connection', async (socket) => {
     });
     
     // Se define el evento 'chat message' que se ejecuta cuando un cliente emite un mensaje
-    socket.on('chat message', async (msg) => {
-        //console.log('message: ' + msg);
-
-        let result
-        let username = await socket.handshake.auth.username ?? 'Anonymous'
-
+    socket.on('chat message', async (msg, color) => {
+        let result;
+        let username = socket.handshake.auth.username ?? 'Anonymous';
 
         try {
             result = await db.execute({
-                sql: 'INSERT INTO messages (content, user) VALUES (:msg, :username)',
-
+                sql: 'INSERT INTO messages (content, user, color) VALUES (:msg, :username, :color)',
                 // Evitar el SQL Injection
-                args: { msg, username }
-            })
+                args: { msg, username, color }
+            });
         } catch (e) {
-            console.error(e)
-            return
+            console.error(e);
+            return;
         }
 
         // Se emite el mensaje a todos los clientes conectados con el id del mensaje
-        io.emit('chat message', msg, result.lastInsertRowid.toString(), username);
-
-        // Se emite el mensaje a todos los clientes conectados
-        //io.emit('chat message', msg);
+        io.emit('chat message', msg, result.lastInsertRowid.toString(), username, color);
     });
 
     if (!socket.recovered) {
         try {
             const results = await db.execute({
-                sql: 'SELECT id, content, user FROM messages WHERE id > ?',
+                sql: 'SELECT id, content, user, color FROM messages WHERE id > ?',
                 args: [socket.handshake.auth.serverOffset ?? 0]
             });
 
             results.rows.forEach(row => {
-                socket.emit('chat message', row.content, row.id.toString(), row.user);
+                socket.emit('chat message', row.content, row.id.toString(), row.user, row.color);
             });
         } catch (e) {
-            console.error(e)
-            return
+            console.error(e);
+            return;
         }
     }
 });
 
 app.get('/', (req, res) => {
-    // Ejemplo para servir una respuesta HTML
-    //res.send('<h1>Hello World</h1>')
-
-    // Ejemplo para servir un archivo HTML
-    // Se utiliza current working directory (cwd) para obtener la ruta absoluta del archivo
-    res.sendFile(process.cwd() + '/client/index.html')
+    res.sendFile(process.cwd() + '/client/index.html');
 });
 
 server.listen(port, () => {
     console.log(`Server started on port ${port}`);
-})
+});
