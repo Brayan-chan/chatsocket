@@ -56,6 +56,8 @@ io.on('connection', (socket) => {
             return
         }
 
+        io.emit('chat message', msg, result.lastInsertRowid.toString());
+
         // Se emite el mensaje a todos los clientes conectados
         io.emit('chat message', msg);
     });
