@@ -8,7 +8,23 @@
         // Se importa el paquete de Socket.io para el cliente
         import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
+        // Se crea una instancia de Socket.io
         const socket = io();
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+
+        // Se escucha el evento 'submit' del formulario
+        form.addEventListener('submit', (e) => {
+            // Se previene el comportamiento por defecto del formulario
+            e.preventDefault();
+            // Se emite el evento 'message' con el valor del input 
+            if (input.value) {
+                socket.emit('message', input.value);
+                // Se limpia el input después de enviar el mensaje
+                input.value = '';
+            }
+        });
     </script>
     <style>
         *, *::before, *::after {
@@ -25,7 +41,7 @@
             display: grid;
             place-content: center;
             height: 100vh;
-            padding: 36px;
+            padding: 36px 36px 100px 36px;
             grid-template-rows: 1fr;
         }
 
