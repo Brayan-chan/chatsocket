@@ -32,7 +32,7 @@ await db.execute(
 )
 
 // Se define el evento 'connection' que se ejecuta cuando un cliente se conecta al servidor
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
     console.log('a user has connected');
 
     // Se define el evento 'disconnect' que se ejecuta cuando un cliente se desconecta del servidor
@@ -64,6 +64,24 @@ io.on('connection', (socket) => {
         // Se emite el mensaje a todos los clientes conectados
         //io.emit('chat message', msg);
     });
+
+    console.log(socket.handshake.auth)
+
+    if (!socket.recovered) {
+        try {
+            const results = await db.execute({
+                sql: 'SELECT id, content FROM messages WHERE id > ?',
+                args: [socket.handshake.auth.serverOffset ?? 0]
+            });
+
+            results.rows.forEach(row => {
+                socket.emit('chat message', row.content, row.id.toString());
+            });
+        } catch (e) {
+            console.error(e)
+            return
+        }
+    }
 });
 
 app.get('/', (req, res) => {
