@@ -5,6 +5,7 @@ import { createClient } from "@libsql/client";
 import { Server } from 'socket.io';
 import  { createServer } from 'node:http';
 
+dotenv.config();
 const port = process.env.PORT ?? 3000;
 
 const app = express();
@@ -23,6 +24,13 @@ const db = createClient({
     authToken: process.env.DB_TOKEN
 });
 
+await db.execute(
+    `CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT
+    )`
+)
+
 // Se define el evento 'connection' que se ejecuta cuando un cliente se conecta al servidor
 io.on('connection', (socket) => {
     console.log('a user has connected');
@@ -31,14 +39,24 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user has disconnected');
     });
-
+    
     // Se define el evento 'chat message' que se ejecuta cuando un cliente emite un mensaje
-    socket.on('chat message', (msg) => {
+    socket.on('chat message', async (msg) => {
         //console.log('message: ' + msg);
+
+        let result
+
+        try {
+            result = await db.execute({
+                sql: `INSERT INTO messages (content) VALUES (:content)`,
+                params: { content: msg }
+            })
+        } catch (e) {
+            
+        }
 
         // Se emite el mensaje a todos los clientes conectados
         io.emit('chat message', msg);
-        console.log('message: ' + msg);
     });
 
     // Utilizamos broadcast para enviar el mensaje a todos los clientes conectados
