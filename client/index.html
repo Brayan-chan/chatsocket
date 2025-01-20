@@ -8,39 +8,62 @@
         // Se importa el paquete de Socket.io para el cliente
         import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
 
-        // Se crea una instancia de Socket.io
-        const socket = io({
-            auth: {
-                // Permitir saber donde se ha quedado el cliente
-                serverOffset: 0
-            }
-        });
-
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const messages = document.getElementById('messages');
 
-        // Se escucha el evento 'chat message' del servidor
-        // Se agrega el mensaje a la lista de mensajes
-        socket.on('chat message', (msg, serverOffset) => {
-            const item = `<li>${msg}</li>`;
-            messages.insertAdjacentHTML('beforeend', item);
-
-            // Se actualiza el offset del servidor
-            socket.auth.serverOffset = serverOffset;
-        });
-
-        // Se escucha el evento 'submit' del formulario
-        form.addEventListener('submit', (e) => {
-            // Se previene el comportamiento por defecto del formulario
-            e.preventDefault();
-            // Se emite el evento 'message' con el valor del input 
-            if (input.value) {
-                socket.emit('chat message', input.value);
-                // Se limpia el input después de enviar el mensaje
-                input.value = '';
+        const getUsername = async () => {
+            let username = localStorage.getItem('username');
+            if (username) {
+                console.log(`username: ${username}`);
+                return username;
             }
-        });
+
+            const res = await fetch('https://random-data-api.com/api/users/random_user');
+            const { username: randomUsername } = await res.json();
+
+            localStorage.setItem('username', randomUsername);
+            return randomUsername;
+        }
+
+        // Se obtiene el nombre de usuario y se crea la instancia de Socket.io
+        (async () => {
+            const username = await getUsername();
+
+            // Se crea una instancia de Socket.io
+            const socket = io({
+                auth: {
+                    username: username,
+                    // Permitir saber donde se ha quedado el cliente
+                    serverOffset: 0
+                }
+            });
+
+            // Se escucha el evento 'chat message' del servidor
+            // Se agrega el mensaje a la lista de mensajes
+            socket.on('chat message', (msg, serverOffset, username) => {
+                const item = `<li>
+                    <p>${msg}</p>
+                    <small>${username}</small>
+                </li>`;
+                messages.insertAdjacentHTML('beforeend', item);
+
+                // Se actualiza el offset del servidor
+                socket.auth.serverOffset = serverOffset;
+            });
+
+            // Se escucha el evento 'submit' del formulario
+            form.addEventListener('submit', (e) => {
+                // Se previene el comportamiento por defecto del formulario
+                e.preventDefault();
+                // Se emite el evento 'message' con el valor del input 
+                if (input.value) {
+                    socket.emit('chat message', input.value);
+                    // Se limpia el input después de enviar el mensaje
+                    input.value = '';
+                }
+            });
+        })();
     </script>
     <style>
         *, *::before, *::after {
