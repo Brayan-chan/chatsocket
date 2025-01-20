@@ -1,5 +1,7 @@
 import express from "express";
 import logger from "morgan";
+import dotenv from 'dotenv';
+import { createClient } from "@libsql/client";
 import { Server } from 'socket.io';
 import  { createServer } from 'node:http';
 
@@ -14,6 +16,11 @@ const server = createServer(app);
 // Se crea una instancia de Socket.io y se le pasa el servidor creado
 const io = new Server(server, {
     connectionStateRecovery: {}
+});
+
+const db = createClient({
+    url: "libsql://desired-spirit-brayan-chan.turso.io",
+    authToken: process.env.DB_TOKEN
 });
 
 // Se define el evento 'connection' que se ejecuta cuando un cliente se conecta al servidor
