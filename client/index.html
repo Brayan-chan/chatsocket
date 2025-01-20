@@ -13,6 +13,14 @@
 
         const form = document.getElementById('form');
         const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+
+        // Se escucha el evento 'chat message' del servidor
+        // Se agrega el mensaje a la lista de mensajes
+        socket.on('chat message', (msg) => {
+            const item = `<li>${msg}</li>`;
+            messages.insertAdjacentHTML('beforeend', item);
+        });
 
         // Se escucha el evento 'submit' del formulario
         form.addEventListener('submit', (e) => {
@@ -32,7 +40,7 @@
         }
 
         :root {
-            color-scheme: light dark;     
+            color-scheme: light dark;
         }
 
         body {
@@ -41,8 +49,22 @@
             display: grid;
             place-content: center;
             height: 100vh;
-            padding: 36px 36px 100px 36px;
+            padding: 36px 100px 36px 36px;
             grid-template-rows: 1fr;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages > li {
+            padding: .5rem 1rem;
+        }
+
+        #messages > li:nth-child(odd) {
+            background: #000;
         }
 
         #chat {
@@ -91,6 +113,7 @@
 </head>
 <body>
     <section id="chat">
+        <ul id="messages"></ul>
         <form id="form">
             <input type="text" name="message" id="input"
             placeholder="Type a message" autocomplete="off">
