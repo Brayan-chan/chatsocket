@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dpyi9zz7k/image/upload/v1733712607/uzyrofjocufkwuwpfcyg.png">
     <link rel="apple-touch-icon" sizes="72x72" href="https://res.cloudinary.com/dpyi9zz7k/image/upload/v1733712607/uzyrofjocufkwuwpfcyg.png">
     <link rel="apple-touch-icon" sizes="114x114" href="https://res.cloudinary.com/dpyi9zz7k/image/upload/v1733712607/uzyrofjocufkwuwpfcyg.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script type="module">
         // Se importa el paquete de Socket.io para el cliente
         import { io } from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js';
@@ -60,8 +61,11 @@
 
             // Se oculta el loader y se muestra el chat una vez que el socket está conectado
             socket.on('connect', () => {
-                loader.style.display = 'none';
-                chat.style.display = 'block';
+                gsap.to('#loader', { opacity: 0, duration: 1, onComplete: () => {
+                    loader.style.display = 'none';
+                    chat.style.display = 'block';
+                    gsap.fromTo('#chat', { opacity: 0 }, { opacity: 1, duration: 1 });
+                }});
             });
 
             // Se escucha el evento 'chat message' del servidor
