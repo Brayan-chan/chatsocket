@@ -12,7 +12,9 @@ app.use(logger('dev'));
 const server = createServer(app);
 
 // Se crea una instancia de Socket.io y se le pasa el servidor creado
-const io = new Server(server);
+const io = new Server(server, {
+    connectionStateRecovery: {}
+});
 
 // Se define el evento 'connection' que se ejecuta cuando un cliente se conecta al servidor
 io.on('connection', (socket) => {
