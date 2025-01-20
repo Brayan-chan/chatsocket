@@ -15,7 +15,6 @@
         const getUsername = async () => {
             let username = localStorage.getItem('username');
             if (username) {
-                console.log(`username: ${username}`);
                 return username;
             }
 
@@ -26,14 +25,28 @@
             return randomUsername;
         }
 
+        const getUserColor = () => {
+            let color = localStorage.getItem('userColor');
+            if (color) {
+                return color;
+            }
+
+            // Genera un color aleatorio
+            color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            localStorage.setItem('userColor', color);
+            return color;
+        }
+
         // Se obtiene el nombre de usuario y se crea la instancia de Socket.io
         (async () => {
             const username = await getUsername();
+            const userColor = getUserColor();
 
             // Se crea una instancia de Socket.io
             const socket = io({
                 auth: {
                     username: username,
+                    color: userColor,
                     // Permitir saber donde se ha quedado el cliente
                     serverOffset: 0
                 }
@@ -41,10 +54,10 @@
 
             // Se escucha el evento 'chat message' del servidor
             // Se agrega el mensaje a la lista de mensajes
-            socket.on('chat message', (msg, serverOffset, username) => {
+            socket.on('chat message', (msg, serverOffset, username, color) => {
                 const item = `<li>
-                    <p>${msg}</p>
-                    <small>${username}</small>
+                    <p style="color: ${color}">${msg}</p>
+                    <small style="color: ${color}">${username}</small>
                 </li>`;
                 messages.insertAdjacentHTML('beforeend', item);
 
@@ -59,7 +72,7 @@
                 e.preventDefault();
                 // Se emite el evento 'message' con el valor del input 
                 if (input.value) {
-                    socket.emit('chat message', input.value);
+                    socket.emit('chat message', input.value, userColor);
                     // Se limpia el input después de enviar el mensaje
                     input.value = '';
                 }
