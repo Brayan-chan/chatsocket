@@ -25,7 +25,10 @@ io.on('connection', (socket) => {
 
     // Se define el evento 'chat message' que se ejecuta cuando un cliente emite un mensaje
     socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
+        //console.log('message: ' + msg);
+
+        // Se emite el mensaje a todos los clientes conectados
+        io.emit('chat message', msg);
     });
 
     // Utilizamos broadcast para enviar el mensaje a todos los clientes conectados
