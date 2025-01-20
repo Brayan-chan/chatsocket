@@ -15,8 +15,13 @@ const server = createServer(app);
 const io = new Server(server);
 
 // Se define el evento 'connection' que se ejecuta cuando un cliente se conecta al servidor
-io.on('connection', () => {
+io.on('connection', (socket) => {
     console.log('a user has connected');
+
+    // Se define el evento 'disconnect' que se ejecuta cuando un cliente se desconecta del servidor
+    socket.on('disconnect', () => {
+        console.log('user has disconnected');
+    });
 });
 
 app.get('/', (req, res) => {
