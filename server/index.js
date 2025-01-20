@@ -48,21 +48,20 @@ io.on('connection', (socket) => {
 
         try {
             result = await db.execute({
-                sql: `INSERT INTO messages (content) VALUES (:msg)`,
-                params: { msg }
+                sql: 'INSERT INTO messages (content) VALUES (:msg)',
+                args: { msg }
             })
         } catch (e) {
             console.error(e)
             return
         }
 
+        // Se emite el mensaje a todos los clientes conectados con el id del mensaje
         io.emit('chat message', msg, result.lastInsertRowid.toString());
 
         // Se emite el mensaje a todos los clientes conectados
-        io.emit('chat message', msg);
+        //io.emit('chat message', msg);
     });
-
-    // Utilizamos broadcast para enviar el mensaje a todos los clientes conectados
 });
 
 app.get('/', (req, res) => {
@@ -77,7 +76,3 @@ app.get('/', (req, res) => {
 server.listen(port, () => {
     console.log(`Server started on port ${port}`);
 })
-
-/*app.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});*/
